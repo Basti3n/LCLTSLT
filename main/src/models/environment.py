@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple, Any
 
 from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_GOAL, REWARD_DEFAULT, REWARD_IMPOSSIBLE, UP, \
@@ -8,8 +8,13 @@ from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_GOAL, 
 @dataclass
 class Environment:
     text: str
+    states: dict = field(init=False)
+    height: int = field(init=False)
+    width: int = field(init=False)
+    starting_point: Tuple[int, int] = field(init=False)
+    goal: Tuple[int, int] = field(init=False)
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.states = {}
         lines = self.text.strip().split('\n')
         self.height = len(lines)
@@ -22,7 +27,7 @@ class Environment:
                 elif lines[row][col] == '*':
                     self.goal = (row, col)
 
-    def apply(self, state, action) -> Tuple[Any, Any]:
+    def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
         if action == UP:
             new_state = (state[0] - 1, state[1])
         elif action == DOWN:

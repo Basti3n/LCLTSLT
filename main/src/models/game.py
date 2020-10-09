@@ -15,8 +15,8 @@ class Game:
 
     def setup(self) -> None:
         # Initialiser l'environment
-        self.agent = Agent(self.environment, self)
+        self.agent = Agent(self.environment)
         # Lancer le jeu
-        self.window = Window(self.agent, self)
+        self.window = Window(self.agent)
         self.window.setup()
         arcade.run()
