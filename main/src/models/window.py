@@ -9,6 +9,7 @@ class Window(arcade.Window):
     agent: Agent
     walls: SpriteList
     rocks: SpriteList
+    heals: SpriteList
     player: Sprite
 
     def __init__(self, agent: Agent):
@@ -20,6 +21,7 @@ class Window(arcade.Window):
     def setup(self) -> None:
         self.walls = arcade.SpriteList()
         self.rocks = arcade.SpriteList()
+        self.heals = arcade.SpriteList()
 
         for state in self.agent.environment.states:
             if self.agent.environment.states[state] == '#':
@@ -32,6 +34,11 @@ class Window(arcade.Window):
                 sprite.center_x = sprite.width * (state[1] + 0.5)
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.rocks.append(sprite)
+            if self.agent.environment.states[state] == '-':
+                sprite = arcade.Sprite(":resources:images/items/gold_1.png", 0.5)
+                sprite.center_x = sprite.width * (state[1] + 0.5)
+                sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
+                self.heals.append(sprite)
 
         self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png", 0.5)
         # self.player = ASTERIX
@@ -49,14 +56,29 @@ class Window(arcade.Window):
             self.agent.update_policy()
             self.update_player_xy()
             self.update_rocks()
+            self.update_heal_player()
+            self.update_heal_rocks()
 
     def update_rocks(self) -> None:
         hit_list = arcade.check_for_collision_with_list(self.player, self.rocks)
-
-        # Loop through each colliding sprite, remove it.
         for rock in hit_list:
             self.agent.lives -= 1
+            # TODO REMOVE ROCK FROM ARRAY
             rock.remove_from_sprite_lists()
+
+    def update_heal_player(self) -> None:
+        hit_list = arcade.check_for_collision_with_list(self.player, self.heals)
+        for rock in hit_list:
+            self.agent.lives += 1
+            # TODO REMOVE HEAL FROM ARRAY
+            rock.remove_from_sprite_lists()
+
+    def update_heal_rocks(self) -> None:
+        for heal in self.heals:
+            hit_list = arcade.check_for_collision_with_list(heal, self.rocks)
+            # TODO REMOVE HEAL FROM ARRAY*
+            if len(hit_list) != 0:
+                heal.remove_from_sprite_lists()
 
     def on_key_press(self, key: int, modifiers: int) -> None:
         if key == arcade.key.R:
