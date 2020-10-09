@@ -27,7 +27,7 @@ class Environment:
                 elif lines[row][col] == '*':
                     self.goal = (row, col)
 
-    def apply(self, state: dict, action: str) -> Tuple[Tuple[int, int], int]:
+    def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
         if action == UP:
             new_state = (state[0] - 1, state[1])
         elif action == DOWN:

@@ -1,12 +1,12 @@
 from dataclasses import dataclass, field
-from typing import Any, Tuple
+from typing import Any, Tuple, KeysView
 
 from main.resources.env_variable import DEFAULT_LEARNING_RATE, DEFAULT_DISCOUNT_FACTOR
 
 
 @dataclass
 class Policy: #Q-table
-    states: dict
+    states: KeysView
     actions: list
     learning_rate: float = field(default=DEFAULT_LEARNING_RATE)
     discount_factor: float = field(default=DEFAULT_DISCOUNT_FACTOR)
