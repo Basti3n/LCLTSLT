@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Tuple, Any
+from typing import Tuple
 
-from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_GOAL, REWARD_DEFAULT, REWARD_IMPOSSIBLE, UP, \
-    DOWN
+from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, \
+    STILL, REWARD_DEAD
 
 
 @dataclass
@@ -12,7 +12,6 @@ class Environment:
     height: int = field(init=False)
     width: int = field(init=False)
     starting_point: Tuple[int, int] = field(init=False)
-    goal: Tuple[int, int] = field(init=False)
 
     def __post_init__(self) -> None:
         self.states = {}
@@ -24,14 +23,10 @@ class Environment:
                 self.states[(row, col)] = lines[row][col]
                 if lines[row][col] == '.':
                     self.starting_point = (row, col)
-                elif lines[row][col] == '*':
-                    self.goal = (row, col)
 
     def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
-        if action == UP:
-            new_state = (state[0] - 1, state[1])
-        elif action == DOWN:
-            new_state = (state[0] + 1, state[1])
+        if action == STILL:
+            new_state = (state[0], state[1])
         elif action == LEFT:
             new_state = (state[0], state[1] - 1)
         elif action == RIGHT:
@@ -40,15 +35,15 @@ class Environment:
             new_state = None
 
         if new_state and new_state in self.states:
-            #calculer la récompense
+            # calculer la récompense
             if self.states[new_state] in ['#', '.']:
                 reward = REWARD_STUCK
-            elif self.states[new_state] in ['*']: #Sortie du labyrinthe : grosse récompense
-                reward = REWARD_GOAL
+            elif self.states[new_state] in ['*']:  # Se prendre un cailloux: mourir
+                reward = REWARD_DEAD
             else:
                 reward = REWARD_DEFAULT
         else:
-            #Etat impossible: grosse pénalité
+            # Etat impossible: grosse pénalité
             new_state = state
             reward = REWARD_IMPOSSIBLE
 

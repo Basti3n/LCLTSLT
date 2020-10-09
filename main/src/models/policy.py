@@ -1,11 +1,11 @@
 from dataclasses import dataclass, field
-from typing import Any, Tuple, KeysView
+from typing import Tuple, KeysView
 
 from main.resources.env_variable import DEFAULT_LEARNING_RATE, DEFAULT_DISCOUNT_FACTOR
 
 
 @dataclass
-class Policy: #Q-table
+class Policy:  # Q-table
     states: KeysView
     actions: list
     learning_rate: float = field(default=DEFAULT_LEARNING_RATE)
@@ -36,4 +36,5 @@ class Policy: #Q-table
         # Q(st, at) = Q(st, at) + learning_rate * (reward + discount_factor * max(Q(state)) - Q(st, at))
         max_q = max(self.table[state].values())
         self.table[previous_state][last_action] += self.learning_rate * \
-            (reward + self.discount_factor * max_q - self.table[previous_state][last_action])
+                                                   (reward + self.discount_factor * max_q - self.table[previous_state][
+                                                       last_action])

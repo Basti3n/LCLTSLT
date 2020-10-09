@@ -1,15 +1,17 @@
 from dataclasses import dataclass, field
-from typing import Any, Tuple
+from typing import Tuple
 
 from main.resources.env_variable import ACTIONS
 from main.src.models.environment import Environment
-
 from main.src.models.policy import Policy
+
+LIVES = 5
 
 
 @dataclass
 class Agent:
     environment: Environment
+    lives: int = field(default=LIVES)
     policy: Policy = field(init=False)
     state: Tuple[int, int] = field(init=False)
     previous_state: Tuple[int, int] = field(init=False)
@@ -25,6 +27,7 @@ class Agent:
         self.state = self.environment.starting_point
         self.previous_state = self.state
         self.score = 0
+        self.lives = LIVES
 
     def best_action(self) -> str:
         return self.policy.best_action(self.state)
