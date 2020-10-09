@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Tuple
 
 from main.resources.env_variable import ACTIONS
 from main.src.models.environment import Environment
@@ -12,11 +12,11 @@ class Agent:
     environment: Environment
     game: Any
     policy: Policy = field(init=False)
-    state: Any = field(init=False)
-    previous_state: Any = field(init=False)
-    score: Any = field(init=False)
-    last_action: Any = field(init=False)
-    reward: Any = field(init=False)
+    state: Tuple[int, int] = field(init=False)
+    previous_state: Tuple[int, int] = field(init=False)
+    score: int = field(init=False)
+    last_action: str = field(init=False)
+    reward: int = field(init=False)
 
     def __post_init__(self) -> None:
         self.policy = Policy(self.game.environment.states.keys(), ACTIONS)
@@ -27,10 +27,10 @@ class Agent:
         self.previous_state = self.state
         self.score = 0
 
-    def best_action(self) -> Any:
+    def best_action(self) -> str:
         return self.policy.best_action(self.state)
 
-    def do(self, action) -> None:
+    def do(self, action: str) -> None:
         self.previous_state = self.state
         self.state, self.reward = self.environment.apply(self.state, action)
         self.score += self.reward
