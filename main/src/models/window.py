@@ -1,7 +1,9 @@
 import arcade
 from arcade import SpriteList, Sprite
+import random
 
 from main.resources.env_variable import SPRITE_SIZE
+from main.resources.sprites.sprite import *
 from main.src.models.agent import Agent
 
 
@@ -17,12 +19,13 @@ class Window(arcade.Window):
                          agent.environment.height * SPRITE_SIZE,
                          "Escape from ESGI")
         self.agent = agent
+        self.WIDTH = (agent.environment.width - 2) * SPRITE_SIZE
+        self.HEIGHT = agent.environment.height * SPRITE_SIZE
 
     def setup(self) -> None:
         self.walls = arcade.SpriteList()
         self.rocks = arcade.SpriteList()
         self.heals = arcade.SpriteList()
-
         for state in self.agent.environment.states:
             if self.agent.environment.states[state] == '#':
                 sprite = arcade.Sprite(":resources:images/tiles/grassCenter.png", 0.5)
@@ -30,7 +33,8 @@ class Window(arcade.Window):
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.walls.append(sprite)
             if self.agent.environment.states[state] == '*':
-                sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
+                sprite = ROCK
+                # sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
                 sprite.center_x = sprite.width * (state[1] + 0.5)
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.rocks.append(sprite)
@@ -40,8 +44,8 @@ class Window(arcade.Window):
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.heals.append(sprite)
 
-        self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png", 0.5)
-        # self.player = ASTERIX
+        # self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png", 0.5)
+        self.player = ASTERIX
 
         self.update_player_xy()
 
@@ -58,8 +62,17 @@ class Window(arcade.Window):
             self.update_rocks()
             self.update_heal_player()
             self.update_heal_rocks()
+            self.generate_rocks()
+
+    def generate_rocks(self) -> None:
+        if len(self.rocks) < 20:
+            sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
+            sprite.center_x = random.randrange(self.WIDTH) + SPRITE_SIZE
+            sprite.center_y = random.randrange(self.HEIGHT+30) + self.HEIGHT
+            self.rocks.append(sprite)
 
     def update_rocks(self) -> None:
+        self.rocks.move(0, -4)
         hit_list = arcade.check_for_collision_with_list(self.player, self.rocks)
         for rock in hit_list:
             self.agent.lives -= 1
