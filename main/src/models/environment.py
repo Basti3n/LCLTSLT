@@ -1,8 +1,11 @@
+import random
 from dataclasses import dataclass, field
 from typing import Tuple
 
 from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, \
-    STILL, REWARD_DEAD
+    STILL, REWARD_HIT, REWARD_STILL
+
+ROCK_FREQUENCY = 2
 
 
 @dataclass
@@ -11,9 +14,13 @@ class Environment:
     states: dict = field(init=False)
     height: int = field(init=False)
     width: int = field(init=False)
+    rock_frequency: int = field(default=ROCK_FREQUENCY, init=False)
     starting_point: Tuple[int, int] = field(init=False)
 
     def __post_init__(self) -> None:
+        self.create_default_state()
+
+    def create_default_state(self) -> None:
         self.states = {}
         lines = self.text.strip().split('\n')
         self.height = len(lines)
@@ -23,6 +30,10 @@ class Environment:
                 self.states[(row, col)] = lines[row][col]
                 if lines[row][col] == '.':
                     self.starting_point = (row, col)
+
+    def reset(self):
+        self.create_default_state()
+        self.rock_frequency = ROCK_FREQUENCY
 
     def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
         if action == STILL:
@@ -36,10 +47,12 @@ class Environment:
 
         if new_state and new_state in self.states:
             # calculer la récompense
-            if self.states[new_state] in ['#', '.']:
+            if action == STILL:
+                reward = REWARD_STILL
+            elif self.states[new_state] in ['#']:
                 reward = REWARD_STUCK
             elif self.states[new_state] in ['*']:  # Se prendre un cailloux: mourir
-                reward = REWARD_DEAD
+                reward = REWARD_HIT
             else:
                 reward = REWARD_DEFAULT
         else:
@@ -48,3 +61,26 @@ class Environment:
             reward = REWARD_IMPOSSIBLE
 
         return new_state, reward
+
+    def update_rocks(self):
+        self.rock_frequency -= 1
+
+        list_tmp = {}
+        for x, y in self.states:
+            resource = self.states[(x, y)]
+            if resource == '*':
+                if x + 1 < self.height - 1:
+                    list_tmp[(x + 1, y)] = resource
+            elif (x, y) not in list_tmp:
+                list_tmp[(x, y)] = resource
+        self.states = list_tmp
+
+        if self.rock_frequency <= 0:
+            block_number = random.randrange(5)
+            for block in range(0, block_number):
+                self.rock_frequency = ROCK_FREQUENCY
+
+                rock_x = random.randrange(1, self.width - 1)
+                rock_y = 0
+                self.states[(rock_y, rock_x)] = '*'
+

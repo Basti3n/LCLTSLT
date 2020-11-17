@@ -33,8 +33,8 @@ class Window(arcade.Window):
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.walls.append(sprite)
             if self.agent.environment.states[state] == '*':
-                sprite = ROCK
-                # sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
+                # sprite = ROCK
+                sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
                 sprite.center_x = sprite.width * (state[1] + 0.5)
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.rocks.append(sprite)
@@ -56,13 +56,16 @@ class Window(arcade.Window):
     def on_update(self, delta_time: float) -> None:
         if self.agent.lives > 0:
             action = self.agent.best_action()
+            self.setup()
+            self.agent.environment.update_rocks()
             self.agent.do(action)
             self.agent.update_policy()
             self.update_player_xy()
             self.update_rocks()
+            self.remove_rocks()
             self.update_heal_player()
             self.update_heal_rocks()
-            self.generate_rocks()
+            # self.generate_rocks()
 
     def generate_rocks(self) -> None:
         if len(self.rocks) < 20:
@@ -76,8 +79,16 @@ class Window(arcade.Window):
         hit_list = arcade.check_for_collision_with_list(self.player, self.rocks)
         for rock in hit_list:
             self.agent.lives -= 1
+            self.agent.update_score('HIT')
             # TODO REMOVE ROCK FROM ARRAY
             rock.remove_from_sprite_lists()
+
+    def remove_rocks(self) -> None:
+        for rock in self.rocks:
+            hit_list = arcade.check_for_collision_with_list(rock, self.walls)
+            self.agent.update_score('DODGE')
+            if len(hit_list) != 0:
+                rock.remove_from_sprite_lists()
 
     def update_heal_player(self) -> None:
         hit_list = arcade.check_for_collision_with_list(self.player, self.heals)
