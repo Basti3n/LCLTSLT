@@ -18,6 +18,7 @@ class Window(arcade.Window):
         super().__init__(agent.environment.width * SPRITE_SIZE,
                          agent.environment.height * SPRITE_SIZE,
                          "Escape from ESGI")
+        self.set_update_rate(1 / 60)
         self.agent = agent
         self.WIDTH = (agent.environment.width - 2) * SPRITE_SIZE
         self.HEIGHT = agent.environment.height * SPRITE_SIZE
@@ -39,13 +40,13 @@ class Window(arcade.Window):
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.rocks.append(sprite)
             if self.agent.environment.states[state] == '-':
-                sprite = arcade.Sprite(":resources:images/items/gold_1.png", 0.5)
+                sprite = arcade.Sprite(":resources:images/items/gold_1.png", 1)
                 sprite.center_x = sprite.width * (state[1] + 0.5)
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.heals.append(sprite)
 
-        # self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png", 0.5)
-        self.player = ASTERIX
+        self.player = arcade.Sprite(":resources:images/animated_characters/robot/robot_idle.png", 0.5)
+        # self.player = ASTERIX
 
         self.update_player_xy()
 
@@ -58,6 +59,7 @@ class Window(arcade.Window):
             action = self.agent.best_action()
             self.setup()
             self.agent.environment.update_rocks()
+            self.agent.environment.update_heals()
             self.agent.do(action)
             self.agent.update_policy()
             self.update_player_xy()
@@ -65,17 +67,8 @@ class Window(arcade.Window):
             self.remove_rocks()
             self.update_heal_player()
             self.update_heal_rocks()
-            # self.generate_rocks()
-
-    def generate_rocks(self) -> None:
-        if len(self.rocks) < 20:
-            sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
-            sprite.center_x = random.randrange(self.WIDTH) + SPRITE_SIZE
-            sprite.center_y = random.randrange(self.HEIGHT+30) + self.HEIGHT
-            self.rocks.append(sprite)
 
     def update_rocks(self) -> None:
-        self.rocks.move(0, -4)
         hit_list = arcade.check_for_collision_with_list(self.player, self.rocks)
         for rock in hit_list:
             self.agent.lives -= 1
@@ -92,10 +85,11 @@ class Window(arcade.Window):
 
     def update_heal_player(self) -> None:
         hit_list = arcade.check_for_collision_with_list(self.player, self.heals)
-        for rock in hit_list:
+        for heal in hit_list:
             self.agent.lives += 1
             # TODO REMOVE HEAL FROM ARRAY
-            rock.remove_from_sprite_lists()
+            heal.remove_from_sprite_lists()
+            break
 
     def update_heal_rocks(self) -> None:
         for heal in self.heals:
@@ -115,6 +109,7 @@ class Window(arcade.Window):
 
         self.walls.draw()
         self.rocks.draw()
+        self.heals.draw()
         self.player.draw()
 
         arcade.draw_text(f'Score: {self.agent.score}', 10, 10, arcade.csscolor.WHITE, 20)
