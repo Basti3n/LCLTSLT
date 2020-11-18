@@ -101,6 +101,7 @@ class Window(arcade.Window):
         for heal in hit_list:
             sprite = arcade.Sprite(":resources:images/items/gold_1.png", 1)
             x = (heal.center_x / sprite.width) - 0.5
+            self.agent.update_score('HEAL')
             self.agent.lives += 1
             heal.remove_from_sprite_lists()
             print(f' - heal: c{int(x)}')

@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Tuple
 
-from main.resources.env_variable import ACTIONS, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, REWARD_HIT, REWARD_DODGE
+from main.resources.env_variable import ACTIONS, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, REWARD_HIT, REWARD_DODGE, REWARD_HEAL
 from main.src.models.environment import Environment
 from main.src.models.policy import Policy
 
@@ -52,5 +52,7 @@ class Agent:
             self.score += REWARD_IMPOSSIBLE
         elif score_string == 'DODGE':
             self.score += REWARD_DODGE
+        elif score_string == 'HEAL':
+            self.score += REWARD_HEAL
         else:
             self.score += REWARD_DEFAULT
