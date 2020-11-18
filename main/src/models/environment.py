@@ -53,11 +53,9 @@ class Environment:
 
         if new_state and new_state in self.states:
             # calculer la récompense
-            if action == STILL:
-                reward = REWARD_STILL
-            elif self.states[new_state] in ['#']:
+            if self.states[new_state] in ['#']:
                 reward = REWARD_STUCK
-            elif self.states[new_state] in ['*']:  # Se prendre un cailloux: mourir
+            elif self.states[new_state] in ['*']:
                 reward = REWARD_HIT
             elif self.states[new_state] in ['-']:
                 self.states[new_state] = ' '
