@@ -6,6 +6,7 @@ from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAUL
     STILL, REWARD_HIT, REWARD_STILL
 
 ROCK_FREQUENCY = 2
+ROCK_FREQUENCY_MOVE = 10
 HEAL_FREQUENCY = 50
 
 
@@ -16,6 +17,7 @@ class Environment:
     height: int = field(init=False)
     width: int = field(init=False)
     rock_frequency: int = field(default=ROCK_FREQUENCY, init=False)
+    rock_frequency_move: int = field(default=ROCK_FREQUENCY_MOVE, init=False)
     heal_frequency: int = field(default=HEAL_FREQUENCY, init=False)
     starting_point: Tuple[int, int] = field(init=False)
 
@@ -36,6 +38,7 @@ class Environment:
     def reset(self):
         self.create_default_state()
         self.rock_frequency = ROCK_FREQUENCY
+        self.rock_frequency_move = ROCK_FREQUENCY_MOVE
         self.heal_frequency = HEAL_FREQUENCY
 
     def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
@@ -69,6 +72,11 @@ class Environment:
         return new_state, reward
 
     def update_rocks(self) -> None:
+        self.rock_frequency_move -= 1
+
+        if self.rock_frequency_move >= 0:
+            return
+        self.rock_frequency_move = ROCK_FREQUENCY_MOVE
         self.rock_frequency -= 1
 
         list_tmp = {}
