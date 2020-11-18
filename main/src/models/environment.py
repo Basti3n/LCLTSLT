@@ -83,8 +83,12 @@ class Environment:
             if resource == '*':
                 if x + 1 < self.height - 1:
                     list_tmp[(x + 1, y)] = resource
+                else:
+                    list_tmp[(x + 1, y)] = "#"
+                list_tmp[(x, y)] = " "
             elif (x, y) not in list_tmp:
                 list_tmp[(x, y)] = resource
+
         self.states = list_tmp
 
         if self.rock_frequency <= 0:
