@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Tuple
 
 from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, \
-    STILL, REWARD_HIT, REWARD_STILL
+    STILL, REWARD_HIT, REWARD_STILL, REWARD_HEAL
 
 ROCK_FREQUENCY = 2
 ROCK_FREQUENCY_MOVE = 10
@@ -61,7 +61,7 @@ class Environment:
                 reward = REWARD_HIT
             elif self.states[new_state] in ['-']:
                 self.states[new_state] = ' '
-                reward = 0
+                reward = REWARD_HEAL
             else:
                 reward = REWARD_DEFAULT
         else:
@@ -72,11 +72,11 @@ class Environment:
         return new_state, reward
 
     def update_rocks(self) -> None:
-        self.rock_frequency_move -= 1
-
-        if self.rock_frequency_move >= 0:
-            return
-        self.rock_frequency_move = ROCK_FREQUENCY_MOVE
+        # self.rock_frequency_move -= 1
+        #
+        # if self.rock_frequency_move >= 0:
+        #     return
+        # self.rock_frequency_move = ROCK_FREQUENCY_MOVE
         self.rock_frequency -= 1
 
         list_tmp = {}

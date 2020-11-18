@@ -22,6 +22,7 @@ class Agent:
     def __post_init__(self) -> None:
         self.policy = Policy(self.environment.states.keys(), ACTIONS)
         self.reset()
+        print(f'Tour 1 :')
 
     def reset(self) -> None:
         self.state = self.environment.starting_point

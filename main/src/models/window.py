@@ -22,6 +22,8 @@ class Window(arcade.Window):
         self.agent = agent
         self.WIDTH = (agent.environment.width - 2) * SPRITE_SIZE
         self.HEIGHT = agent.environment.height * SPRITE_SIZE
+        self.turn = 2
+        self.maxturns = 30
 
     def setup(self) -> None:
         self.walls = arcade.SpriteList()
@@ -67,6 +69,13 @@ class Window(arcade.Window):
             self.remove_rocks()
             self.update_heal_player()
             self.update_heal_rocks()
+        elif self.turn <= self.maxturns:
+            [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
+            print(self.agent.policy.table)
+            self.agent.reset()
+            self.turn += 1
+            print("\n" + "-" * 90 + "\n")
+            print(f'Tour {self.turn}')
 
     def update_rocks(self) -> None:
         self.rocks.move(0, -4)
@@ -76,17 +85,16 @@ class Window(arcade.Window):
             x = (rock.center_x / sprite.width) - 0.5
             self.agent.lives -= 1
             self.agent.update_score('HIT')
-            # TODO REMOVE ROCK FROM ARRAY
             rock.remove_from_sprite_lists()
-            print(f'(14, int({x}))')
+            print(f' - rock: c{int(x)}')
             self.agent.environment.states[14, (int(x))] = ' '
 
     def remove_rocks(self) -> None:
         for rock in self.rocks:
             hit_list = arcade.check_for_collision_with_list(rock, self.walls)
-            self.agent.update_score('DODGE')
             if len(hit_list) != 0:
                 rock.remove_from_sprite_lists()
+                self.agent.update_score('DODGE')
 
     def update_heal_player(self) -> None:
         hit_list = arcade.check_for_collision_with_list(self.player, self.heals)
@@ -95,7 +103,7 @@ class Window(arcade.Window):
             x = (heal.center_x / sprite.width) - 0.5
             self.agent.lives += 1
             heal.remove_from_sprite_lists()
-            print(f'(14, int({x}))')
+            print(f' - heal: c{int(x)}')
             self.agent.environment.states[14, (int(x))] = ' '
 
     def update_heal_rocks(self) -> None:
