@@ -1,3 +1,5 @@
+from dataclasses import field
+
 import arcade
 from arcade import SpriteList, Sprite
 import random
@@ -24,6 +26,7 @@ class Window(arcade.Window):
         self.HEIGHT = agent.environment.height * SPRITE_SIZE
         self.turn = 2
         self.maxturns = 30
+        self.max_score = 0
 
     def setup(self) -> None:
         self.walls = arcade.SpriteList()
@@ -70,6 +73,10 @@ class Window(arcade.Window):
             self.update_heal_player()
             self.update_heal_rocks()
         elif self.turn <= self.maxturns:
+            if self.turn == 2:
+                self.max_score = self.agent.score
+            else:
+                self.max_score = self.agent.score if self.agent.score > self.max_score else self.max_score
             [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
             print(self.agent.policy.table)
             self.agent.reset()
@@ -129,3 +136,4 @@ class Window(arcade.Window):
 
         arcade.draw_text(f'Score: {self.agent.score}', 10, 10, arcade.csscolor.WHITE, 20)
         arcade.draw_text(f'Live: {self.agent.lives}', 10, 40, arcade.csscolor.WHITE, 20)
+        arcade.draw_text(f'Max score: {self.max_score}', 1200, 40, arcade.csscolor.GOLD, 20)
