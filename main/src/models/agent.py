@@ -16,6 +16,7 @@ class Agent:
     state: Tuple[int, int] = field(init=False)
     previous_state: Tuple[int, int] = field(init=False)
     score: int = field(init=False)
+    coins: int = field(init=False)
     last_action: str = field(init=False)
     reward: int = field(init=False)
 
@@ -29,6 +30,7 @@ class Agent:
         self.previous_state = self.state
         self.environment.reset()
         self.score = 0
+        self.coins = 0
         self.lives = LIVES
 
     def best_action(self) -> str:

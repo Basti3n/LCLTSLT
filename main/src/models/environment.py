@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Tuple
 
 from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, \
-    STILL, REWARD_HIT, REWARD_STILL, REWARD_HEAL, REWARD_DODGE
+    STILL, REWARD_HIT, REWARD_STILL, REWARD_HEAL, REWARD_GOTO_HEAL, REWARD_DODGE
 
 ROCK_FREQUENCY = 2
 ROCK_FREQUENCY_MOVE = 2
@@ -43,6 +43,7 @@ class Environment:
         self.heal_frequency = HEAL_FREQUENCY
 
     def apply(self, state: Tuple[int, int], action: str) -> Tuple[Tuple[int, int], int]:
+        reward = 0
         if action == STILL:
             new_state = (state[0], state[1])
         elif action == LEFT:
@@ -60,29 +61,39 @@ class Environment:
             (y, x) = state
             ontopnew = (ynew - 1, xnew)  # Above the new position
             above = [self.states[pos, x] for pos in range(y-3, y)]  # Above the current position
+            left = [self.states[y, pos] for pos in range(1, x)]  # Left Heal check
+            right = [self.states[y, pos] for pos in range(x, 21)]  # Right Heal check
             # calculer la récompense
             # print(new_state, ontop)
             if self.states[new_state] in ['#']:
-                print('stuck')
-                reward = REWARD_STUCK
+                # print('stuck')
+                reward += REWARD_STUCK
             elif self.states[new_state] in ['-']:
-                print('healed')
+                # print('healed')
                 self.states[new_state] = ' '
-                reward = REWARD_HEAL
+                reward += REWARD_HEAL
             elif self.states[new_state] in ['*']:
-                print('hit')
-                reward = REWARD_HIT
-            elif '*' in above:
-                print('roock < 3 block above')
-                reward = REWARD_HIT
-            elif self.states[ontopnew] in ['*']:
-                print('rock right above  new pos')
-                reward = REWARD_HIT
+                # print('hit')
+                reward += REWARD_HIT
             else:
                 if action == STILL:
-                    reward = REWARD_STILL
+                    reward += REWARD_STILL
                 else:
-                    reward = REWARD_DEFAULT
+                    reward += REWARD_DEFAULT
+            if '*' in above:
+                # print('rock < 3 block above')
+                reward += REWARD_HIT
+            elif self.states[ontopnew] in ['*']:
+                # print('rock right above new pos')
+                reward += REWARD_HIT
+            if '-' in left and action != LEFT:
+                # print('Heal on left')
+                # print(left)
+                reward += (REWARD_GOTO_HEAL * (x - left[::-1].index('-')))
+            elif '-' in right and action != RIGHT:
+                # print('Heal on right')
+                # print(right)
+                reward += (REWARD_GOTO_HEAL * (right.index('-')))
         else:
             # Etat impossible: grosse pénalité
             new_state = state
@@ -111,7 +122,7 @@ class Environment:
             elif (x, y) not in list_tmp:
                 list_tmp[(x, y)] = resource
         self.states = list_tmp
-        print(len(self.states))
+        # print(len(self.states))
 
         if self.rock_frequency <= 0:
             block_number = random.randrange(5)

@@ -61,8 +61,7 @@ class Window(arcade.Window):
 
     def on_update(self, delta_time: float) -> None:
         if self.agent.lives > 0:
-            print('table x')
-            [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
+            # [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
             action = self.agent.best_action()
             self.setup()
             self.agent.environment.update_rocks()
@@ -76,10 +75,10 @@ class Window(arcade.Window):
             self.update_heal_rocks()
         elif self.turn <= self.maxturns:
             if self.turn == 2:
-                self.max_score = self.agent.score
+                self.max_score = self.agent.coins
             else:
-                self.max_score = self.agent.score if self.agent.score > self.max_score else self.max_score
-            [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
+                self.max_score = self.agent.coins if self.agent.coins > self.max_score else self.max_score
+            # [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
             print(self.agent.policy.table)
             self.agent.reset()
             self.turn += 1
@@ -111,7 +110,7 @@ class Window(arcade.Window):
         for heal in hit_list:
             sprite = arcade.Sprite(":resources:images/items/gold_1.png", 1)
             x = (heal.center_x / sprite.width) - 0.5
-            self.agent.lives += 1
+            self.agent.coins += 1
             # heal.remove_from_sprite_lists()
             # self.agent.update_score('HEAL')
             print(f' - heal: c{int(x)}')
@@ -137,6 +136,6 @@ class Window(arcade.Window):
         self.heals.draw()
         self.player.draw()
 
-        arcade.draw_text(f'Score: {self.agent.score}', 10, 10, arcade.csscolor.WHITE, 20)
+        arcade.draw_text(f'Score: {self.agent.coins * 100}', 10, 10, arcade.csscolor.WHITE, 20)
         arcade.draw_text(f'Live: {self.agent.lives}', 10, 40, arcade.csscolor.WHITE, 20)
-        arcade.draw_text(f'Max score: {self.max_score}', 1200, 40, arcade.csscolor.GOLD, 20)
+        arcade.draw_text(f'Max score: {self.max_score * 100}', 1200, 40, arcade.csscolor.GOLD, 20)
