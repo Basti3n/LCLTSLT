@@ -3,9 +3,9 @@ from dataclasses import dataclass, field
 from typing import Tuple
 
 from main.resources.env_variable import RIGHT, LEFT, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, \
-    STILL, REWARD_HIT, REWARD_STILL, REWARD_HEAL, REWARD_GOTO_HEAL, REWARD_DODGE
+    STILL, REWARD_HIT, REWARD_STILL, REWARD_HEAL, REWARD_GOTO_HEAL, REWARD_ALMOST_HIT
 
-ROCK_FREQUENCY = 2
+ROCK_FREQUENCY = 3
 ROCK_FREQUENCY_MOVE = 2
 HEAL_FREQUENCY = 50
 
@@ -59,20 +59,21 @@ class Environment:
         if new_state and new_state in self.states:
             (ynew, xnew) = new_state
             (y, x) = state
-            ontopnew = (ynew - 1, xnew)  # Above the new position
+            fov = 5
             above = [self.states[pos, x] for pos in range(y-3, y)]  # Above the current position
-            left = [self.states[y, pos] for pos in range(1, x)]  # Left Heal check
-            right = [self.states[y, pos] for pos in range(x, 21)]  # Right Heal check
+            above_new = [self.states[pos, xnew] for pos in range(y-3, y)]  # Above the current position
+            left = [self.states[y, pos] for pos in range((1 if x-fov < 1 else x-fov), x)]  # Left Heal check
+            right = [self.states[y, pos] for pos in range(x, (21 if x+fov > 21 else x+fov+1))]  # Right Heal check
             # calculer la récompense
             # print(new_state, ontop)
             if self.states[new_state] in ['#']:
                 # print('stuck')
                 reward += REWARD_STUCK
-            elif self.states[new_state] in ['-']:
+            if self.states[new_state] in ['-']:
                 # print('healed')
                 self.states[new_state] = ' '
                 reward += REWARD_HEAL
-            elif self.states[new_state] in ['*']:
+            if self.states[new_state] in ['*']:
                 # print('hit')
                 reward += REWARD_HIT
             else:
@@ -81,19 +82,23 @@ class Environment:
                 else:
                     reward += REWARD_DEFAULT
             if '*' in above:
-                # print('rock < 3 block above')
-                reward += REWARD_HIT
-            elif self.states[ontopnew] in ['*']:
-                # print('rock right above new pos')
-                reward += REWARD_HIT
+                # print('rock < 3 block above curr pos')
+                reward += REWARD_ALMOST_HIT
+            if '*' in above_new:
+                # print('rock < 3 block above new pos')
+                reward += REWARD_ALMOST_HIT
             if '-' in left and action != LEFT:
                 # print('Heal on left')
                 # print(left)
                 reward += (REWARD_GOTO_HEAL * (x - left[::-1].index('-')))
-            elif '-' in right and action != RIGHT:
+            # if '-' in left and action == LEFT:
+            #     reward += 5
+            if '-' in right and action != RIGHT:
                 # print('Heal on right')
                 # print(right)
-                reward += (REWARD_GOTO_HEAL * (right.index('-')))
+                reward += (REWARD_GOTO_HEAL * (1 + right.index('-')))
+            # if '-' in right and action == RIGHT:
+            #     reward += 5
         else:
             # Etat impossible: grosse pénalité
             new_state = state
