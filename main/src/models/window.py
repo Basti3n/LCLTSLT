@@ -1,8 +1,5 @@
-from dataclasses import field
-
 import arcade
-from arcade import SpriteList, Sprite
-import random
+from arcade import SpriteList
 
 from main.resources.env_variable import SPRITE_SIZE
 from main.resources.sprites.sprite import *
@@ -25,7 +22,7 @@ class Window(arcade.Window):
         self.WIDTH = (agent.environment.width - 2) * SPRITE_SIZE
         self.HEIGHT = agent.environment.height * SPRITE_SIZE
         self.turn = 2
-        self.maxturns = 50
+        self.max_turns = 50
         self.max_score = 0
 
     def setup(self) -> None:
@@ -45,6 +42,7 @@ class Window(arcade.Window):
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
                 self.rocks.append(sprite)
             if self.agent.environment.states[state] == '-':
+                # sprite = HEAL
                 sprite = arcade.Sprite(":resources:images/items/gold_1.png", 1)
                 sprite.center_x = sprite.width * (state[1] + 0.5)
                 sprite.center_y = sprite.height * (self.agent.environment.height - state[0] - 0.5)
@@ -61,7 +59,6 @@ class Window(arcade.Window):
 
     def on_update(self, delta_time: float) -> None:
         if self.agent.lives > 0:
-            # [print(str(x) + " -> " + str(self.agent.policy.table[x])) for x in self.agent.policy.table if self.agent.policy.table[x] != {'R': 0, 'L': 0, 'S': 0}]
             action = self.agent.best_action()
             self.setup()
             self.agent.environment.update_rocks()
@@ -73,7 +70,7 @@ class Window(arcade.Window):
             self.remove_rocks()
             self.update_heal_player()
             self.update_heal_rocks()
-        elif self.turn <= self.maxturns:
+        elif self.turn <= self.max_turns:
             if self.turn == 2:
                 self.max_score = self.agent.coins
             else:
@@ -86,24 +83,20 @@ class Window(arcade.Window):
             print(f'Tour {self.turn}')
 
     def update_rocks(self) -> None:
-        # self.rocks.move(0, -4)
         hit_list = arcade.check_for_collision_with_list(self.player, self.rocks)
         for rock in hit_list:
-            sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
+            sprite = ROCK
+            # sprite = arcade.Sprite(":resources:images/tiles/boxCrate_double.png", 0.5)
             x = (rock.center_x / sprite.width) - 0.5
             self.agent.lives -= 1
-            # rock.remove_from_sprite_lists()
-            # self.agent.update_score('HIT')
             print(f' - rock: c{int(x)}')
             self.agent.environment.print_states()
-            # self.agent.environment.states[14, (int(x))] = ' '
 
     def remove_rocks(self) -> None:
         for rock in self.rocks:
             hit_list = arcade.check_for_collision_with_list(rock, self.walls)
             if len(hit_list) != 0:
                 rock.remove_from_sprite_lists()
-                self.agent.update_score('DODGE')
 
     def update_heal_player(self) -> None:
         hit_list = arcade.check_for_collision_with_list(self.player, self.heals)
@@ -111,10 +104,8 @@ class Window(arcade.Window):
             sprite = arcade.Sprite(":resources:images/items/gold_1.png", 1)
             x = (heal.center_x / sprite.width) - 0.5
             self.agent.coins += 1
-            # heal.remove_from_sprite_lists()
-            # self.agent.update_score('HEAL')
+            heal.remove_from_sprite_lists()
             print(f' - heal: c{int(x)}')
-            # self.agent.environment.states[14, (int(x))] = ' '
 
     def update_heal_rocks(self) -> None:
         for heal in self.heals:

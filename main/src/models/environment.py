@@ -52,9 +52,6 @@ class Environment:
             new_state = (state[0], state[1] + 1)
         else:
             new_state = None
-        # print(new_state)
-        # self.print_states()
-        # self.is_states_full()
 
         if new_state and new_state in self.states:
             (ynew, xnew) = new_state
@@ -65,7 +62,6 @@ class Environment:
             left = [self.states[y, pos] for pos in range((1 if x-fov < 1 else x-fov), x)]  # Left Heal check
             right = [self.states[y, pos] for pos in range(x, (21 if x+fov > 21 else x+fov+1))]  # Right Heal check
             # calculer la récompense
-            # print(new_state, ontop)
             if self.states[new_state] in ['#']:
                 # print('stuck')
                 reward += REWARD_STUCK
@@ -89,16 +85,10 @@ class Environment:
                 reward += REWARD_ALMOST_HIT
             if '-' in left and action != LEFT:
                 # print('Heal on left')
-                # print(left)
                 reward += (REWARD_GOTO_HEAL * (x - left[::-1].index('-')))
-            # if '-' in left and action == LEFT:
-            #     reward += 5
             if '-' in right and action != RIGHT:
                 # print('Heal on right')
-                # print(right)
                 reward += (REWARD_GOTO_HEAL * (1 + right.index('-')))
-            # if '-' in right and action == RIGHT:
-            #     reward += 5
         else:
             # Etat impossible: grosse pénalité
             new_state = state
@@ -127,7 +117,6 @@ class Environment:
             elif (x, y) not in list_tmp:
                 list_tmp[(x, y)] = resource
         self.states = list_tmp
-        # print(len(self.states))
 
         if self.rock_frequency <= 0:
             block_number = random.randrange(5)
@@ -185,4 +174,4 @@ class Environment:
             print("keys are not present")
             for key in total_state:
                 if key not in self.states:
-                    print(key,"is not in")
+                    print(key, "is not in")

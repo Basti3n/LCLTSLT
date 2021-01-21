@@ -44,17 +44,3 @@ class Agent:
 
     def update_policy(self) -> None:
         self.policy.update(self.previous_state, self.state, self.last_action, self.reward)
-
-    def update_score(self, score_string: str) -> None:
-        if score_string == 'HIT':
-            self.score += REWARD_HIT
-        elif score_string == 'STUCK':
-            self.score += REWARD_STUCK
-        elif score_string == 'ERROR':
-            self.score += REWARD_IMPOSSIBLE
-        elif score_string == 'DODGE':
-            self.score += REWARD_DODGE
-        elif score_string == 'HEAL':
-            self.score += REWARD_HEAL
-        else:
-            self.score += REWARD_DEFAULT
