@@ -57,10 +57,10 @@ class Environment:
             (ynew, xnew) = new_state
             (y, x) = state
             fov = 5
-            above = [self.states[pos, x] for pos in range(y-3, y)]  # Above the current position
-            above_new = [self.states[pos, xnew] for pos in range(y-3, y)]  # Above the current position
-            left = [self.states[y, pos] for pos in range((1 if x-fov < 1 else x-fov), x)]  # Left Heal check
-            right = [self.states[y, pos] for pos in range(x, (21 if x+fov > 21 else x+fov+1))]  # Right Heal check
+            above = [self.states[pos, x] for pos in range(y - 3, y)]  # Above the current position
+            above_new = [self.states[pos, xnew] for pos in range(y - 3, y)]  # Above the current position
+            left = [self.states[y, pos] for pos in range((1 if x - fov < 1 else x - fov), x)]  # Left Heal check
+            right = [self.states[y, pos] for pos in range(x, (21 if x + fov > 21 else x + fov + 1))]  # Right Heal check
             # calculer la récompense
             if self.states[new_state] in ['#']:
                 # print('stuck')
@@ -165,9 +165,9 @@ class Environment:
 
     def is_states_full(self):
         total_state = {}
-        for i in range(0,16):
-            for j in range(0,21):
-                total_state[(i,j)] = 0
+        for i in range(0, 16):
+            for j in range(0, 21):
+                total_state[(i, j)] = 0
         if all(key in total_state for key in self.states):
             print("keys are present")
         else:

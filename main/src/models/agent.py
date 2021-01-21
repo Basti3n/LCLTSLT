@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Tuple
 
-from main.resources.env_variable import ACTIONS, REWARD_STUCK, REWARD_DEFAULT, REWARD_IMPOSSIBLE, REWARD_HIT, REWARD_DODGE, REWARD_HEAL
+from main.resources.env_variable import ACTIONS
 from main.src.models.environment import Environment
 from main.src.models.policy import Policy
 
